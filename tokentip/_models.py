@@ -295,6 +295,27 @@ class Ack:
 
 
 @dataclass(frozen=True, slots=True)
+class ApiToken:
+    id: str
+    prefix: str
+    scope: str
+    created_at: datetime
+    name: str | None = None
+    last_used_at: datetime | None = None
+
+    @classmethod
+    def _from(cls, d: dict[str, Any]) -> "ApiToken":
+        return cls(
+            id=d["id"],
+            prefix=d["prefix"],
+            scope=d["scope"],
+            created_at=_dt(d["created_at"]),
+            name=d.get("name"),
+            last_used_at=_dt_opt(d.get("last_used_at")),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class Event:
     id: str
     type: str

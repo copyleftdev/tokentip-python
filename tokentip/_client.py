@@ -60,6 +60,7 @@ class TokenTip:
         self._http = client or httpx.Client(base_url=base_url, timeout=timeout)
         self.tips = _Tips(self)
         self.key = _Key(self)
+        self.tokens = _Tokens(self)
         self.webhooks = _Webhooks(self)
         self.operator = _Operator(self)
 
@@ -148,6 +149,18 @@ class _Key:
         )
 
 
+class _Tokens:
+    def __init__(self, c: TokenTip) -> None:
+        self._c = c
+
+    def list(self) -> List[m.ApiToken]:
+        rows = self._c._request("GET", "/v1/tokens")
+        return [m.ApiToken._from(r) for r in rows]
+
+    def revoke(self, token_id: str) -> None:
+        self._c._request("DELETE", f"/v1/tokens/{token_id}")
+
+
 class _Webhooks:
     def __init__(self, c: TokenTip) -> None:
         self._c = c
@@ -229,6 +242,7 @@ class AsyncTokenTip:
         self._http = client or httpx.AsyncClient(base_url=base_url, timeout=timeout)
         self.tips = _AsyncTips(self)
         self.key = _AsyncKey(self)
+        self.tokens = _AsyncTokens(self)
         self.webhooks = _AsyncWebhooks(self)
         self.operator = _AsyncOperator(self)
 
@@ -317,6 +331,18 @@ class _AsyncKey:
                 "POST", "/v1/key/rotate", idempotency_key=idempotency_key
             )
         )
+
+
+class _AsyncTokens:
+    def __init__(self, c: AsyncTokenTip) -> None:
+        self._c = c
+
+    async def list(self) -> List[m.ApiToken]:
+        rows = await self._c._request("GET", "/v1/tokens")
+        return [m.ApiToken._from(r) for r in rows]
+
+    async def revoke(self, token_id: str) -> None:
+        await self._c._request("DELETE", f"/v1/tokens/{token_id}")
 
 
 class _AsyncWebhooks:
